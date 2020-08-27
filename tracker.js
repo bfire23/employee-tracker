@@ -1,7 +1,7 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const cTable = require("console.table");
-const { response } = require("express");
+// const { response } = require("express");
 
 
 
@@ -26,7 +26,7 @@ connection.connect(function (err) {
 function runQuestions() {
   inquirer.prompt(
     {
-      type: "rawlist",
+      type: "list",
       name: "beginQ",
       message: "What would you like to do",
       choices: [
@@ -80,25 +80,24 @@ function runQuestions() {
 }
 
 function viewAllDepartments() {
-  const query = "SELECT  * FROM departments";
+  const query = "SELECT * FROM department";
   connection.query(query, function (err, res) {
-    console.log("Departments Retrieved from Database");
-    console.table(response);
+    console.table(res);
+    runQuestions();
   });
 
-  runQuestions();
 }
 
 
 
 function viewAllEmployee() {
-  const query = "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department on role.department_id = department.id;";
+  const query = "SELECT employee.id, employee.first_name, employee.last_name, role.title, + department.name, role.salary FROM employee LEFT JOIN role ON employee.role_id = role.id LEFT JOIN department on role.department_id = department.id;";
   connection.query(query, function (err, res) {
     console.log("employees Retrieved from Database");
-    console.table(response);
+    console.table(res);
+    runQuestions();
 
   });
-  runQuestions();
 }
 
 
@@ -107,10 +106,10 @@ function viewAllRoles() {
   const query = "SELECT  * FROM role";
   connection.query(query, function (err, res) {
     console.log("Roles Retrieved from Database");
-    console.table(response);
+    console.table(res);
+    runQuestions();
   });
 
-  runQuestions();
 }
 
 
@@ -124,15 +123,13 @@ function addDepartment() {
   )
 
     .then(function(response) {
-      const query = "INSERT INTO department (name) VALUES";
-      connection.query(query, [response.departName], function(err, res) {
-        if (err) { 
-        throw err;
-        }
+      const query = "INSERT INTO department SET ?";
+      connection.query(query, {name: response.departName}, function(err, res) {
+        if (err) throw err; 
         console.log("Department Added");
         console.table(response);
+        runQuestions();
       });
-      runQuestions();
     })
 }
 
@@ -153,22 +150,22 @@ function addEmployee() {
     ])
 
   .then(function(response) {
-    const query = "INSERT INTO employee SET";
-    connection.query(query, [response.first_name, response.last_name], function(err,res) {
+    const query = "INSERT INTO employee SET ?";
+    connection.query(query, {first_name: response.first_name, last_name: response.last_name}, function(err,res) {
       if (err) {
         throw err;
       }
       console.log("Added Employee");
       console.table(response);
+      runQuestions();
     });
-    runQuestions();
   })
 }
 
 
 
 function addRoles() {
-  inquirer.prompt(
+  inquirer.prompt([
     {
       type: "input",
       name: "addTitle",
@@ -184,21 +181,32 @@ function addRoles() {
       name: "addDepartmentId",
       message: "enter employee department id"
     }
-  )
+  ]
+    )
+
 
   .then(function(response) {
     const query = "INSERT INTO role SET ?";
-    connection.query(query, [response.addTitle, response.addSalary, response.addDepartmentId], function(err,res) {
+    connection.query(query, {title: response.addTitle, salary: response.addSalary, department_id: response.addDepartmentId}, function(err,res) {
       if (err) {
         throw err;
       }
       console.log("Added Role");
       console.table(response);
+      runQuestions();
     })
-    runQuestions();
   })
       
 }
+
+
+function updateEmployeeRoles() {
+  
+
+}
+
+
+
 
 
 
