@@ -23,6 +23,8 @@ VALUES ("Jane", "Doe", 1, 1),
        ("Geralt", "Rivia", 2, 2),
        ("Yennever", "Vengerberg",3, null);
 
+       UPDATE employee SET role_id = 6 WHERE id = 3;
+
 
 SELECT * FROM department;
 SELECT * FROM role;
